@@ -1,0 +1,267 @@
+import zipfile
+import xml.etree.ElementTree as ET
+def read_excel(filename, sheet_name="sheet4"):
+# Open the .xlsx file as a zip archive
+with zipfile.ZipFile(filename, 'r') as z:
+# Extract the content of the specified sheet
+with z.open(f'xl/worksheets/{sheet_name}.xml') as f:
+tree = ET.parse(f)
+root = tree.getroot()
+# Namespace
+ns = {'main': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+# Extract shared strings
+with z.open('xl/sharedStrings.xml') as shared_strings_file:
+shared_strings_tree = ET.parse(shared_strings_file)
+shared_strings_root = shared_strings_tree.getroot()
+shared_strings = [elem.text for elem in shared_strings_root.findall('.//main:t', ns)]
+# Extract data from the sheet
+data = []
+for row in root.findall('.//main:row', ns):
+data_row = []
+for cell in row.findall('.//main:c', ns):
+data_value = cell.find('main:v', ns)
+if data_value is not None:
+# Check if the cell type is 's' which means it's a shared string
+if cell.get('t') == 's':
+data_row.append(shared_strings[int(data_value.text)])
+else:
+Batch-2 AIML (Non honors)
+500091934
+data_row.append(data_value.text)
+else:
+data_row.append('')
+data.append(data_row)
+return data
+def display_data(data):
+# Calculate column widths
+col_widths = [max(len(str(cell)) for cell in col) for col in zip(*data)]
+# Display the data
+for row in data:
+print(' | '.join(str(cell).ljust(width) for cell, width in zip(row, col_widths)))
+if __name__ == "__main__":
+data = read_excel("essential.xlsx", sheet_name="sheet4") # Specify the sheet name
+display_data(data)
+RESULT
+Batch-2 AIML (Non honors)
+500091934
+EXPERIMENT-2
+Batch-2 AIML (Non honors)
+500091934
+# Define the path to your CSV file
+file_path = 'all_players_stats.csv'
+def display_table(file_path):
+# Open the file with utf-8 encoding
+with open(file_path, 'r', encoding='utf-8', errors='replace') as file:
+# Read the lines
+lines = file.readlines()
+# Determine the maximum width for each column
+column_widths = [max(len(value) for value in col) for col in zip(*[line.split(",") for line in
+lines])]
+# Print header (assuming first line is the header)
+header = lines[0].strip().split(",")
+print("| " + " | ".join(header[i].ljust(column_widths[i]) for i in range(len(header))) + " |")
+print("|-" + "-|-".join("-" * width for width in column_widths) + "-|")
+# Print rows
+for line in lines[1:]:
+row = line.strip().split(",")
+print("| " + " | ".join(row[i].ljust(column_widths[i]) for i in range(len(row))) + " |")
+display_table(file_path)
+Batch-2 AIML (Non honors)
+500091934
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+# Activation functions and their derivatives
+def relu(x):
+return np.maximum(0, x)
+def relu_derivative(x):
+return np.where(x > 0, 1, 0)
+def tanh(x):
+return np.tanh(x)
+def tanh_derivative(x):
+return 1.0 - np.tanh(x)**2
+def sigmoid(x):
+return 1 / (1 + np.exp(-x))
+def sigmoid_derivative(x):
+return x * (1 - x)
+def logarithm(x):
+return np.log(1 + np.exp(x))
+def logarithm_derivative(x):
+return 1 / (1 + np.exp(-x))
+class Perceptron:
+Batch-2 AIML (Non honors)
+500091934
+def __init__(self, input_size, hidden_size, output_size, activation="relu", layers=1):
+self.layers = layers
+self.weights_input_hidden = np.random.randn(input_size, hidden_size)
+self.bias_hidden = np.random.randn(hidden_size)
+if layers == 2:
+self.weights_hidden_hidden2 = np.random.randn(hidden_size, hidden_size)
+self.bias_hidden2 = np.random.randn(hidden_size)
+self.weights_hidden_output = np.random.randn(hidden_size, output_size)
+self.bias_output = np.random.randn(output_size)
+# Set activation function
+if activation == "relu":
+self.activation = relu
+self.activation_derivative = relu_derivative
+elif activation == "tanh":
+self.activation = tanh
+self.activation_derivative = tanh_derivative
+elif activation == "sigmoid":
+self.activation = sigmoid
+self.activation_derivative = sigmoid_derivative
+elif activation == "logarithm":
+self.activation = logarithm
+self.activation_derivative = logarithm_derivative
+else:
+raise ValueError(f"Unsupported activation function: {activation}")
+print(f"Using activation function: {self.activation.__name__}")
+print(f"Using activation derivative: {self.activation_derivative.__name__}")
+def forward(self, x):
+self.input = x
+self.hidden = self.activation(np.dot(x, self.weights_input_hidden) + self.bias_hidden)
+if self.layers == 2:
+Batch-2 AIML (Non honors)
+500091934
+self.hidden2 = self.activation(np.dot(self.hidden, self.weights_hidden_hidden2) +
+self.bias_hidden2)
+self.output = np.dot(self.hidden2, self.weights_hidden_output) + self.bias_output
+else:
+self.output = np.dot(self.hidden, self.weights_hidden_output) + self.bias_output
+return self.output
+def backward(self, y, learning_rate=0.01):
+d_loss_output = 2.0 * (self.output - y)
+d_loss_hidden = d_loss_output.dot(self.weights_hidden_output.T) *
+self.activation_derivative(self.hidden)
+# Update weights and biases
+self.weights_hidden_output -= learning_rate * np.outer(self.hidden, d_loss_output)
+self.bias_output -= learning_rate * d_loss_output
+self.weights_input_hidden -= learning_rate * np.outer(self.input, d_loss_hidden)
+self.bias_hidden -= learning_rate * d_loss_hidden
+# Read data from Excel
+sheets = ['Sheet1', 'Sheet2', 'Sheet3', 'Sheet4','Sheet6']
+df = pd.read_excel('essential.xlsx', sheet_name=sheets, header=1)
+# Extract GD data for each year and handle missing values
+def extract_gd_with_penalty(sheet_name, penalty=15):
+gd_values = df[sheet_name]['GD'].values
+# If there are missing GD values, fill them with a penalty
+if len(gd_values) < 27:
+worst_gd = np.min(gd_values)
+missing_values = np.full(27 - len(gd_values), worst_gd - penalty)
+gd_values = np.concatenate([gd_values, missing_values])
+return gd_values
+gd_2023 = extract_gd_with_penalty('Sheet1')
+Batch-2 AIML (Non honors)
+500091934
+gd_2022 = extract_gd_with_penalty('Sheet2')
+gd_2021 = extract_gd_with_penalty('Sheet3')
+gd_2020 = extract_gd_with_penalty('Sheet4')
+# Combine GD data for all years
+gd_combined = np.column_stack([gd_2023, gd_2022, gd_2021, gd_2020])
+# Read Weight data from the final_weights workbook
+df_weights = pd.read_excel('essential.xlsx', sheet_name='FinalWeights')
+weights = df_weights['Weight'].values
+# Combine GD and Weight data to form the features
+features = np.column_stack((gd_combined, weights))
+positions = df['Sheet1']['Pos'].values.reshape(-1, 1)
+# Feature Scaling
+scaler = StandardScaler()
+features = scaler.fit_transform(features)
+num_hidden_layers = int(input("Choose the number of hidden layers (1/2): "))
+# Initialize perceptron
+activation_function = input("Choose an activation function (relu/tanh/sigmoid/logarithm): ")
+input_size = features.shape[1]
+hidden_size = 5
+output_size = 1
+model = Perceptron(input_size, hidden_size, output_size, activation=activation_function,
+layers=num_hidden_layers)
+Batch-2 AIML (Non honors)
+500091934
+# Train the perceptron
+epochs = 1000
+initial_learning_rate = 0.01
+decay_rate = 0.001
+for epoch in range(epochs):
+learning_rate = initial_learning_rate / (1 + decay_rate * epoch) # Learning rate decay
+for x, y in zip(features, positions):
+model.forward(x)
+model.backward(y, learning_rate)
+teams = []
+for sheet in sheets:
+teams.extend(df[sheet]['Team'].values)
+# Get unique teams
+predictions_2023 = [model.forward(x) for x in features]
+# Get the sorted indices based on the predictions
+predicted_positions_2023 = np.argsort(predictions_2023, axis=0).flatten()
+# Get the sorted indices of the predictions
+sorted_indices = np.argsort(predictions_2023, axis=0).flatten()
+# Clip the predicted positions to ensure they are within bounds
+predicted_positions_2023 = np.clip(predicted_positions_2023, 0, len(teams) - 1)
+# teams without repetition
+unique_teams = df['Sheet6']['Team'].values
+selected_teams = []
+Batch-2 AIML (Non honors)
+500091934
+for idx in sorted_indices:
+if idx < len(unique_teams) and unique_teams[idx] not in selected_teams:
+selected_teams.append(unique_teams[idx])
+if len(selected_teams) == 20: # Only consider top 20 teams
+break
+# DataFrame for predicted standings
+predicted_standings_2023 = pd.DataFrame({
+'Team': selected_teams,
+'Predicted Position': np.arange(1, 21) # Positions from 1 to 20
+})
+# top 20 teams
+predicted_winner_index = np.argmin(predictions_2023)
+print("\nPredicted 2023 EPL Winner based on 2022 data:")
+print(predicted_standings_2023.head(1))
+print(f"Actual 2023 EPL Winner based on 2022 data: {df['Sheet6']['Team'].iloc[0]}")
+print('\nPredicted League Standings for 2023:')
+print(predicted_standings_2023.head(21))
+print('\nActual League Standings for 2023:')
+print(df['Sheet6'])
+# Extract from 2023
+predictions_2023 = np.array(predictions_2023[:20]).reshape(-1, 1)
+# array contains positions for the year 2023 from Sheet6
+positions_2023 = df['Sheet6']['Pos'].values.reshape(-1, 1)
+Batch-2 AIML (Non honors)
+500091934
+# Ensure that the predictions and positions arrays have the same shape
+if len(predictions_2023) > len(positions_2023):
+predictions_2023 = predictions_2023[:len(positions_2023)]
+# Compute the MSE for 2023
+mse = np.mean((positions_2023 - predictions_2023) ** 2)
+print(f"Mean Squared Error: {mse}")
+# Compute the Mean Absolute Error (MAE) for 2023
+mae = np.mean(np.abs(positions_2023 - predictions_2023))
+print(f"Mean Absolute Error: {mae}")
+# Compute the Root Mean Squared Error (RMSE) for 2023
+rmse = np.sqrt(np.mean((positions_2023 - predictions_2023) ** 2))
+print(f"Root Mean Squared Error: {rmse}")
+# Check for top-k accuracy
+k = 3
+top_k_teams = np.argsort(predictions_2023, axis=0)[:-k]
+actual_winner = df['Sheet6']['Pos'].iloc[0] # Assuming the team at position 1 in Sheet6 is the winner
+if actual_winner in top_k_teams:
+print(f"Hit for top-{k} accuracy!")
+else:
+print(f"Miss for top-{k} accuracy.")
+# Accuracy calculation function
+def calculate_accuracy(actual, predicted):
+differences = [abs(actual[actual['Team'] == team]['Actual Position'].values[0] -
+predicted[predicted['Team'] == team]['Predicted Position'].values[0])
+for team in actual['Team'].values]
+Batch-2 AIML (Non honors)
+500091934
+total_error = sum(differences)
+max_error = len(actual) * (len(actual) - 1) / 2
+accuracy = 100 * (1 - total_error / max_error)
+return accuracy
+# Actual standings based on the 2023-2024 data from Sheet6
+actual_standings = pd.DataFrame({
+'Team': df['Sheet6']['Team'].values,
+'Actual Position': np.arange(1, len(df['Sheet6']['Team']) + 1)
+})
+accuracy = calculate_accuracy(actual_standings, predicted_standings_2023)
+print(f"Accuracy: {accuracy:.2f}%")
