@@ -1,0 +1,36 @@
+Libraries and Dependencies:
+The code imports necessary libraries such as numpy, pandas, StandardScaler from
+sklearn.preprocessing, and matplotlib.pyplot.
+Activation Functions:
+The code defines several activation functions and their derivatives:
+ReLU (Rectified Linear Unit) and its derivative.
+Hyperbolic Tangent (tanh) and its derivative.
+Sigmoid and its derivative.
+Logarithm (a custom function) and its derivative.
+Perceptron Class:
+A simple feed-forward neural network is defined with the ability to have one or two hidden layers.
+The perceptron initializes random weights and biases for the input-hidden and hidden-output layers.
+The activation function for the perceptron can be chosen from the previously defined functions.
+The forward method computes the output of the perceptron for a given input.
+The backward method updates the weights and biases using the gradient descent algorithm.
+Data Loading and Preprocessing:
+The code reads data from an Excel file named 'essential.xlsx' which contains multiple sheets.
+The GD (Goal Difference) data for each year is extracted, and any missing values are filled with a
+penalty. i.e not being in top 20 teams in the latest prediction data
+The GD data for multiple years is combined to form a feature set.
+'Weight', is read from the 'FinalWeights' sheet and combined with the GD data.
+The features are then scaled using the StandardScaler to have zero mean and unit variance.
+Batch-2 AIML (Non honors)
+500091934
+Model Initialization and Training:
+The user is able to choose the number of hidden layers (1 or 2) and the activation function.
+The perceptron is trained for 1000 epochs using a decaying learning rate.
+Predictions and Analysis:
+The trained perceptron is used to predict the standings for the year 2023.
+The predicted standings are compared with the actual standings from the '2023-2024' of the Excel file.
+Various metrics such as Mean Squared Error (MSE), Mean Absolute Error (MAE), and Root Mean
+Squared Error (RMSE) are computed to evaluate the model's performance.
+A top-k accuracy check is performed to see if the actual winner is within the top-k predicted teams.
+Overall Objective:
+The primary goal of the code is to predict the standings of EPL teams for the year 2023 based on
+previous season data and then evaluate the accuracy of these predictions against the actual standings.
